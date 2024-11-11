@@ -30,16 +30,17 @@
       <button type="submit" class="signup-button">다음으로</button>
     </form>
   </div>
-  <script>
-    function validatePassword() {
-      const password = document.getElementById("password").value;
-      const passwordConfirm = document.getElementById("confirm-password").value;
-      if (password !== passwordConfirm) {
-        alert("Passwords do not match. Please try again.");
+ <script>
+function validatePassword() {
+    const password = document.getElementById("password").value;
+    const passwordConfirm = document.getElementById("password_confirm").value;
+    if (password !== passwordConfirm) {
+        alert("비밀번호가 일치하지 않습니다. 다시 입력해 주세요.");
         return false;
-      }
-      return true;
     }
-  </script>
+    return true;
+}
+</script>
+
 </body>
 </html>
