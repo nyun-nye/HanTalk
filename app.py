@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
 import os
 from dotenv import load_dotenv
@@ -45,8 +45,10 @@ def signUp():
         password_confirm = request.form['password_confirm']
 
         # 비밀번호 확인 로직
-        if password != password_confirm:
-            return "Passwords do not match. Please try again."
+       if password != password_confirm:
+    flash("Passwords do not match. Please try again.")
+    return render_template('signUp.html')
+
         
         # 회원가입 로직 (DB에 저장)
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
