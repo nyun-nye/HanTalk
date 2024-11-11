@@ -9,9 +9,9 @@
 <body>
   <div class="login-container">
     <h1 class="logo">한톡</h1>
-    <form class="login-form">
-      <input type="text" placeholder="아이디를 입력하세요." class="input-field" required>
-      <input type="password" placeholder="비밀번호를 입력하세요." class="input-field" required>
+    <form class="login-form" method="POST" action="/login">
+      <input type="text" name="user_id" placeholder="아이디를 입력하세요." class="input-field" required>
+      <input type="password" name="password" placeholder="비밀번호를 입력하세요." class="input-field" required>
       <button type="submit" class="login-button">로그인</button>
     </form>
     <div class="links">
