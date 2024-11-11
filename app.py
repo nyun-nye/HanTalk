@@ -31,6 +31,8 @@ def login():
         username = request.form['username']
         password = request.form['password']
         # 로그인 로직 (DB 확인, 세션 설정 등)
+        user_id_from_db = 1 # user_id 불러오기 *** DB 확인 수정 ***
+        session['username'] = username  # 세션에 사용자명 저장
         return redirect(url_for('home'))  # 로그인 후 홈페이지로 리디렉션
     return render_template('login.html')
 
@@ -76,6 +78,47 @@ def handle_msg(data):   # 이벤트 처리 함수
     username = data['username'] # 사용자 이름 불러오기
     send(f"[{username}]: {msg}", to=room) # 채팅방 내 사용자들에게 메세지 전송
 
+# 1:1 채팅방 선택 페이지
+@app.route('/personalChat')
+def personalChat():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # 로그인 안 된 사용자는 로그인 페이지로 리디렉션
+    return render_template('personalChat.html')
+
+# 채팅방 페이지
+@app.route('/chatInterface/<int:user_id>')
+def chatInterface(user_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # 로그인 안 된 사용자는 로그인 페이지로 리디렉션
+    return render_template('chatInterface.html', username=session['username'], receiver_id=user_id)
+
+
+# WebSocket 채팅 처리
+# 방 입장
+@socketio.on('join')
+def on_join(data):
+    username = session.get('username')
+    room = f"room_{session['user_id']}_{data['room']}"
+    join_room(room)
+    send(f"{username}님이 채팅방에 참여했습니다.", room=room)
+
+# 메시지 전송
+@socketio.on('message')
+def handle_message(data):
+    room = f"room_{session['user_id']}_{data['receiver']}"
+    send({
+        'sender': session.get('username'),
+        'message': data['message'],
+        'image': data.get('image')
+    }, room=room)
+
+# 방 나가기
+@socketio.on('leave')
+def on_leave(data):
+    username = session.get('username')
+    room = f"room_{session['user_id']}_{data['room']}"
+    leave_room(room)
+    send(f"{username}님이 채팅방을 나갔습니다.", room=room)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
