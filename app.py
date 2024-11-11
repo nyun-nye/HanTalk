@@ -48,7 +48,6 @@ def signUp():
        if password != password_confirm:
             flash("Passwords do not match. Please try again.")
             return render_template('signUp.html')
-
         
         # 회원가입 로직 (DB에 저장)
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
