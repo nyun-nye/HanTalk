@@ -11,7 +11,7 @@
     <h1 class="logo">한톡</h1>
     <h2>회원가입</h2>
     <p class="subheading">회원정보 입력</p>
-    <form class="signup-form" method="POST" action="/signUp">
+    <form class="signup-form" method="POST" action="/signUp" onsubmit="return validatePassword()">
       <label for="name">이름</label>
       <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
 
@@ -30,6 +30,16 @@
       <button type="submit" class="signup-button">다음으로</button>
     </form>
   </div>
-  <script src="signup.js"></script>
+  <script>
+    function validatePassword() {
+      const password = document.getElementById("password").value;
+      const passwordConfirm = document.getElementById("confirm-password").value;
+      if (password !== passwordConfirm) {
+        alert("Passwords do not match. Please try again.");
+        return false;
+      }
+      return true;
+    }
+  </script>
 </body>
 </html>
