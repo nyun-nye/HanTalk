@@ -45,12 +45,17 @@ def signUp():
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
     return render_template('signUp.html')
 
+# 채팅방 목록 페이지
+@app.route('/group_chat')
+def group_chat():
+    return render_template('groupChat.html', rooms=CHAT_ROOMS)
+
 # 그룹 채팅방 렌더링
 @app.route('/chat/<room>')
 def chat_room(room):
     if room not in CHAT_ROOMS:  # 채팅방이 CHAT_ROOMS에 존재하는지 확인
         return "존재하지 않는 채팅방입니다.", 404   # 없으면 404 오류 리턴
-    return render_template('groupChat.html', room=room) # 존재하면 html 렌더링
+    return render_template('chatInterface.html', room=room) # 존재하면 html 렌더링
 
 
 # WebSocket : 클라이언트 연결
@@ -73,5 +78,5 @@ def handle_msg(data):   # 이벤트 처리 함수
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5002)
+    app.run(debug=True, host="0.0.0.0", port=5000)
     socketio.run(app, debug=True)
