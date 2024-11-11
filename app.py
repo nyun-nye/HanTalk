@@ -31,8 +31,8 @@ def login():
         return redirect(url_for('home'))  # 로그인 후 홈페이지로 리디렉션
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+@app.route('/signUp', methods=['GET', 'POST'])
+def signUp():
     if request.method == 'POST':
         # 회원가입 처리 로직 추가
         username = request.form['username']
@@ -40,7 +40,7 @@ def register():
         password = request.form['password']
         # 회원가입 로직 (DB에 저장)
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
-    return render_template('register.html')
+    return render_template('signUp.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

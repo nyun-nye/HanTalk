@@ -6,8 +6,8 @@ bcrypt = Bcrypt()
 auth_bp = Blueprint("auth", __name__)
 
 # 회원가입 라우트
-@auth_bp.route("/register", methods=["POST"])
-def register(mysql):  # mysql을 매개변수로 받음
+@auth_bp.route("/signUp", methods=["POST"])
+def signUp(mysql):  # mysql을 매개변수로 받음
     data = request.get_json()
     username = data["username"]
     email = data["email"]
@@ -17,7 +17,7 @@ def register(mysql):  # mysql을 매개변수로 받음
     try:
         cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
         mysql.connection.commit()
-        return jsonify({"message": "User registered successfully"}), 201
+        return jsonify({"message": "User signUped successfully"}), 201
     except Exception as e:
         mysql.connection.rollback()
         return jsonify({"error": str(e)}), 400
