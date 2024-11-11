@@ -1,0 +1,74 @@
+@font-face {
+  font-family: 'CWDangamAsac-Bold';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/CWDangamAsac-Bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.main-container {
+  text-align: center;
+}
+
+.logo {
+  font-family: 'CWDangamAsac-Bold', sans-serif;
+  font-size: 4rem;
+  color: #3b82f6;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px solid #3b82f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+}
+
+.circle-text {
+  font-family: 'CWDangamAsac-Bold', sans-serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #3b82f6;
+  text-align: center;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  width: 400px
+}
+
+.main-button {
+  width: 400px;
+  padding: 10px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.main-button:hover {
+  background-color: #2563eb;
+}
