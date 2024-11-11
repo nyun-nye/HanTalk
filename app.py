@@ -46,8 +46,8 @@ def signUp():
 
         # 비밀번호 확인 로직
        if password != password_confirm:
-    flash("Passwords do not match. Please try again.")
-    return render_template('signUp.html')
+            flash("Passwords do not match. Please try again.")
+            return render_template('signUp.html')
 
         
         # 회원가입 로직 (DB에 저장)
