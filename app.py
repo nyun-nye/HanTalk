@@ -69,13 +69,27 @@ def signUp():
 def group_chat():
     if 'user_id' not in session:
         return redirect(url_for('login'))  # 로그인 안 된 사용자는 로그인 페이지로 리디렉션
-    return render_template('groupChat.html', rooms=CHAT_ROOMS)  # 로그인 된 경우 그룹 채팅 페이지 렌더링
+
+    # 데이터베이스에서 그룹 채팅방 목록 가져오기
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, room_name FROM group_rooms")
+    rooms = cur.fetchall()
+    cur.close()
+
+    return render_template('groupChat.html', rooms=rooms)
+
 # 그룹 채팅방 렌더링
-@app.route('/chat/<room>')
+@app.route('/chat/<int:room>')
 def chat_room(room):
-    if room not in CHAT_ROOMS:  # 채팅방이 CHAT_ROOMS에 존재하는지 확인
-        return "존재하지 않는 채팅방입니다.", 404   # 없으면 404 오류 리턴
-    return render_template('chatInterface.html', room=room) # 존재하면 html 렌더링
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM group_rooms WHERE id = %s", (room,))
+    room_data = cur.fetchone()
+    cur.close()
+
+    if room_data is None:  # 방이 존재하지 않으면 404 반환
+        return "존재하지 않는 채팅방입니다.", 404
+
+    return render_template('chatInterface.html', room=room_data[1])  # 방 이름을 넘겨줌
 
 # WebSocket : 클라이언트 연결
 @socketio.on('join')    
@@ -101,14 +115,13 @@ def handle_send_message(data):
         print("[Server Log] Invalid room or message.")
         return
 
-    print(f"[Server Log] Broadcasting message to room {room}: {message} by {sender}")
+    print(f"[Server Log] Received message to room {room}: {message} by {sender}")
 
-    # 메시지 브로드캐스트
+    # Broadcast the message
     socketio.emit('receive_message', {
         'sender': sender,
         'message': message
     }, to=room)
-
 
 # 1:1 채팅방 선택 페이지
 @app.route('/personalChat')
@@ -134,29 +147,36 @@ def on_leave(data):
     send(f"{username}님이 채팅방을 나갔습니다.", to=room)
 
 # 메시지 전송 라우트
-@app.route('/sendMessage', methods=['POST'])
-def send_message():
-    if 'user_id' not in session:
-        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
-
-    data = request.json
-    sender_id = session['user_id']
-    receiver_id = data.get('receiver_id')
+@socketio.on('send_group_message')
+def handle_group_message(data):
+    room = data.get('room')
     message = data.get('message')
+    sender = session.get('user_id')
 
-    print(f"Sender ID: {sender_id}, Receiver ID: {receiver_id}, Message: {message}")
-    # DB에 메시지 저장
+    if not room or not message:
+        print("[Server Log] Invalid room or message.")
+        return
+
     try:
+        # 메시지 저장
         cur = mysql.connection.cursor()
         cur.execute(
-            "INSERT INTO messages (sender_id, receiver_id, message) VALUES (%s, %s, %s)",
-            (sender_id, receiver_id, message)
+            "INSERT INTO group_messages (room_id, sender_id, message) VALUES (%s, %s, %s)",
+            (room, sender, message)
         )
         mysql.connection.commit()
-        return jsonify({'success': True}), 200
+        cur.close()
+
+        print(f"[Server Log] Group message sent to room {room}: {message} by {sender}")
+
+        # 메시지 브로드캐스트
+        socketio.emit('receive_group_message', {
+            'sender': sender,
+            'message': message
+        }, to=room)
     except Exception as e:
-        print(f"DB Error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        print(f"Error sending group message: {str(e)}")
+        socketio.emit('error', {'error': str(e)}, to=room)
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
