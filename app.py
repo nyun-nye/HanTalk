@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, leave_room
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import os
 from dotenv import load_dotenv
-from flask_socketio import SocketIO, join_room, send
+from flask_socketio import SocketIO, join_room, send, leave_room
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 
 # 환경 변수 로드
@@ -51,7 +51,7 @@ def signUp():
 
         # 비밀번호 확인 로직
         if password != password_confirm:
-            return "Passwords do not match. Please try again."
+            return "<script>alert('비밀번호가 일치하지 않습니다. 다시 입력해 주세요.'); window.history.back();</script>"
         
         # 회원가입 로직 (DB에 저장)
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
@@ -68,7 +68,6 @@ def chat_room(room):
     if room not in CHAT_ROOMS:  # 채팅방이 CHAT_ROOMS에 존재하는지 확인
         return "존재하지 않는 채팅방입니다.", 404   # 없으면 404 오류 리턴
     return render_template('chatInterface.html', room=room) # 존재하면 html 렌더링
-
 
 # WebSocket : 클라이언트 연결
 @socketio.on('join')    
@@ -102,34 +101,13 @@ def chatInterface(user_id):
         return redirect(url_for('login'))  # 로그인 안 된 사용자는 로그인 페이지로 리디렉션
     return render_template('chatInterface.html', username=session['username'], receiver_id=user_id)
 
-
-# WebSocket 채팅 처리
-# 방 입장
-@socketio.on('join')
-def on_join(data):
-    username = session.get('username')
-    room = f"room_{session['user_id']}_{data['room']}"
-    join_room(room)
-    send(f"{username}님이 채팅방에 참여했습니다.", room=room)
-
-# 메시지 전송
-@socketio.on('message')
-def handle_message(data):
-    room = f"room_{session['user_id']}_{data['receiver']}"
-    send({
-        'sender': session.get('username'),
-        'message': data['message'],
-        'image': data.get('image')
-    }, room=room)
-
 # 방 나가기
 @socketio.on('leave')
 def on_leave(data):
     username = session.get('username')
-    room = f"room_{session['user_id']}_{data['room']}"
+    room = data['room']
     leave_room(room)
-    send(f"{username}님이 채팅방을 나갔습니다.", room=room)
+    send(f"{username}님이 채팅방을 나갔습니다.", to=room)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
