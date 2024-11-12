@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 import os
@@ -6,10 +7,13 @@ from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, send, leave_room
 =======
 from flask import Flask, render_template, request, redirect, url_for, session, leave_room
+=======
+from flask import Flask, render_template, request, redirect, url_for, session
+>>>>>>> 548019f8d5b0969b4dc3c2ff94413e207764193e
 from flask_mysqldb import MySQL
 import os
 from dotenv import load_dotenv
-from flask_socketio import SocketIO, join_room, send
+from flask_socketio import SocketIO, join_room, send, leave_room
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 >>>>>>> 1c71950d9f1b46fd1578e36ed1af375ecdb0c840
 
@@ -59,8 +63,12 @@ def signUp():
 
         # 비밀번호 확인 로직
         if password != password_confirm:
+<<<<<<< HEAD
             flash("Passwords do not match. Please try again.")
             return render_template('signUp.html')
+=======
+            return "<script>alert('비밀번호가 일치하지 않습니다. 다시 입력해 주세요.'); window.history.back();</script>"
+>>>>>>> 548019f8d5b0969b4dc3c2ff94413e207764193e
         
         # 회원가입 로직 (DB에 저장)
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
@@ -75,8 +83,13 @@ def group_chat():
 @app.route('/chat/<room>')
 def chat_room(room):
     if room not in CHAT_ROOMS:  # 채팅방이 CHAT_ROOMS에 존재하는지 확인
+<<<<<<< HEAD
         return "존재하지 않는 채팅방입니다.", 404  # 없으면 404 오류 리턴
     return render_template('chatInterface.html', room=room)  # 존재하면 html 렌더링
+=======
+        return "존재하지 않는 채팅방입니다.", 404   # 없으면 404 오류 리턴
+    return render_template('chatInterface.html', room=room) # 존재하면 html 렌더링
+>>>>>>> 548019f8d5b0969b4dc3c2ff94413e207764193e
 
 # WebSocket : 클라이언트 연결
 @socketio.on('join')
@@ -88,17 +101,44 @@ def handle_join(data):  # 이벤트 처리 함수
     send(f"{username}님이 {room} 그룹채팅방에 입장했습니다.", to=room)
 
 # WebSocket : 메세지 전송
+<<<<<<< HEAD
 @socketio.on('message')
 def handle_msg(data):  # 이벤트 처리 함수
     room = data['room']  # 채팅방 이름 불러오기
     msg = data['message']  # 메세지 내용 msg에 저장
     username = data['username']  # 사용자 이름 불러오기
     send(f"[{username}]: {msg}", to=room)  # 채팅방 내 사용자들에게 메세지 전송
+=======
+@socketio.on('message') 
+def handle_msg(data):   # 이벤트 처리 함수
+    room = data['room'] # 채팅방 이름 불러오기
+    msg = data['message']   # 메세지 내용 msg에 저장
+    username = data['username'] # 사용자 이름 불러오기
+    send(f"[{username}]: {msg}", to=room) # 채팅방 내 사용자들에게 메세지 전송
+
+# 1:1 채팅방 선택 페이지
+@app.route('/personalChat')
+def personalChat():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # 로그인 안 된 사용자는 로그인 페이지로 리디렉션
+    return render_template('personalChat.html')
+
+# 채팅방 페이지
+@app.route('/chatInterface/<int:user_id>')
+def chatInterface(user_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))  # 로그인 안 된 사용자는 로그인 페이지로 리디렉션
+    return render_template('chatInterface.html', username=session['username'], receiver_id=user_id)
+>>>>>>> 548019f8d5b0969b4dc3c2ff94413e207764193e
 
 # 방 나가기
 @socketio.on('leave')
 def on_leave(data):
+<<<<<<< HEAD
     username = data['username']
+=======
+    username = session.get('username')
+>>>>>>> 548019f8d5b0969b4dc3c2ff94413e207764193e
     room = data['room']
     leave_room(room)
     send(f"{username}님이 채팅방을 나갔습니다.", to=room)
