@@ -46,6 +46,7 @@ h2 {
   flex-direction: column;
   gap: 15px;
   width: 400px;
+  margin-bottom: 20px;
 }
 
 label {

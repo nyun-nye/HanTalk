@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
 import os
 from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, send, leave_room
+=======
+from flask import Flask, render_template, request, redirect, url_for, session, leave_room
+from flask_mysqldb import MySQL
+import os
+from dotenv import load_dotenv
+from flask_socketio import SocketIO, join_room, send
+from routes import init_routes  # routes.py의 init_routes 함수 가져오기
+>>>>>>> 1c71950d9f1b46fd1578e36ed1af375ecdb0c840
 
 # 환경 변수 로드
 load_dotenv()
@@ -19,11 +28,14 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 mysql = MySQL(app)
 
+# Blueprint 라우트 등록
+init_routes(app, mysql)  # Blueprint를 app에 등록
+
 CHAT_ROOMS = ["데이터통신", "알고리즘", "객체지향언어", "자료구조", "프로그래밍언어", "오픈소스"]
 
 @app.route('/')
 def home():
-    return "Homepage"
+    return render_template('main.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
