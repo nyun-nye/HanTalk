@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>그룹 채팅</title>
+  <link rel="stylesheet" href="../static/css/groupChat.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <div class="group-chat-container">
+    <h1 class="logo">한톡</h1>
+    <h2>그룹 채팅</h2>
+    <div class="group-list">
+      {% for room in rooms %}
+        <div class="group-item" data-room-id="{{ room[0] }}">{{ room[1] }}</div>
+      {% endfor %}
+    </div>
+      </div>
+  <script>
+    const session_user_id = "{{ session['user_id'] }}";  // 서버에서 전달된 세션 유저 ID
+  </script>
+  <script src="../static/js/groupChat.js"></script>
+  </body>
+</html>

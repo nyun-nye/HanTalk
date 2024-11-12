@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, session
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 
@@ -41,18 +41,25 @@ def signUp():
 @auth_bp.route("/login", methods=["POST"])
 def login():
     mysql = current_app.config['MYSQL_INSTANCE']
-    data = request.get_json()
-    user_id = data["user_id"]
-    password = data["password"]
+    data = request.get_json()  # 클라이언트로부터 JSON 데이터 수신
+    user_id = data.get("user_id")
+    password = data.get("password")
     
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM users WHERE user_id = %s", [user_id])
     user = cur.fetchone()
-    if user and bcrypt.check_password_hash(user[4], password):  # user[4]는 password
+    cur.close()
+    
+    if user and bcrypt.check_password_hash(user[4], password):  # user[4]는 password 필드
         access_token = create_access_token(identity=user_id)
-        return jsonify(access_token=access_token), 200
-    return jsonify({"error": "Invalid user_id or password"}), 401
-
+        return jsonify({"message": "로그인 성공", "access_token": access_token}), 200
+    else:
+        return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
+@auth_bp.route('/check', methods=['GET'])
+def check_login_status():
+    if 'user_id' in session:
+        return jsonify({'status': 'logged_in'}), 200
+    return jsonify({'status': 'not_logged_in'}), 401
 # 라우트 초기화 함수
 def init_routes(app, mysql):
     app.config['MYSQL_INSTANCE'] = mysql  # MySQL 객체를 Flask 설정에 저장
