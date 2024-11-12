@@ -11,15 +11,21 @@
     <h1 class="logo">한톡</h1>
     <h2>회원가입</h2>
     <p class="subheading">회원정보 입력</p>
-    <form class="signup-form">
-      <label for="username">아이디</label>
-      <input type="text" id="username" placeholder="영문, 숫자를 포함한 5~10자리 이내" required>
+    <form class="signup-form" method="POST" action="/signUp">
+      <label for="name">이름</label>
+      <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+
+      <label for="student_id">학번</label>
+      <input type="text" id="student_id" name="student_id" placeholder="학번을 입력하세요" required>
+      
+      <label for="user_id">아이디</label>
+      <input type="text" id="user_id" name="user_id" placeholder="영문, 숫자를 포함한 5~10자리 이내" required>
       
       <label for="password">비밀번호</label>
-      <input type="password" id="password" placeholder="영문, 숫자, 특수문자를 포함한 8~10자리 이내" required>
+      <input type="password" id="password" name="password" placeholder="영문, 숫자, 특수문자를 포함한 8~10자리 이내" required>
       
       <label for="confirm-password">비밀번호 확인</label>
-      <input type="password" id="confirm-password" placeholder="비밀번호 확인" required>
+      <input type="password" id="confirm-password" name="password_confirm" placeholder="비밀번호 확인" required>
       
       <button type="submit" class="signup-button">다음으로</button>
     </form>

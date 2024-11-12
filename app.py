@@ -28,11 +28,9 @@ def home():
 def login():
     if request.method == 'POST':
         # 로그인 처리 로직 추가
-        username = request.form['username']
+        user_id = request.form['user_id']
         password = request.form['password']
         # 로그인 로직 (DB 확인, 세션 설정 등)
-        user_id_from_db = 1 # user_id 불러오기 *** DB 확인 수정 ***
-        session['username'] = username  # 세션에 사용자명 저장
         return redirect(url_for('home'))  # 로그인 후 홈페이지로 리디렉션
     return render_template('login.html')
 
@@ -40,9 +38,16 @@ def login():
 def signUp():
     if request.method == 'POST':
         # 회원가입 처리 로직 추가
-        username = request.form['username']
-        email = request.form['email']
+        name = request.form['name']
+        student_id = request.form['student_id']
+        user_id = request.form['user_id']
         password = request.form['password']
+        password_confirm = request.form['password_confirm']
+
+        # 비밀번호 확인 로직
+        if password != password_confirm:
+            return "Passwords do not match. Please try again."
+        
         # 회원가입 로직 (DB에 저장)
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
     return render_template('signUp.html')
