@@ -8,7 +8,6 @@ socket.on('connect', () => {
 
 document.querySelector('.send-button').addEventListener('click', function () {
     const message = document.querySelector('.chat-input').value;
-    const room = 'hansung1';  // 실제 방 ID
     socket.emit('send_message', { room: room, message: message });
     document.querySelector('.chat-input').value = '';  // 입력 필드 초기화
 });
