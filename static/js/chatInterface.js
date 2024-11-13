@@ -1,7 +1,5 @@
 const socket = io();  // WebSocket 연결
 
-socket.emit('join', { room: room });  // 방 참여
-
 socket.on('connect', () => {
     console.log('[Client Log] Connected to server, joining room:', room);
     socket.emit('join', { room: room });
