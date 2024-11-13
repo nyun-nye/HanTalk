@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>채팅 화면</title>
+  <link rel="stylesheet" href="../static/css/chatInterface.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <div class="chat-interface">
+    <h1 class="logo">한톡</h1>
+    <h2>{{ room }}</h2>
+    <div class="chat-window"></div>
+    <div class="chat-input-area">
+      <input type="text" placeholder="메시지를 입력하세요." class="chat-input">
+      <button class="send-button">전송</button>
+    </div>
+  </div>
+  <!-- Flask session 값 전달 -->
+  <script>
+    const session_user_id = "{{ session['user_id'] }}";  // 서버에서 전달된 세션 유저 ID
+    const room = "{{ room }}";  // 서버에서 전달된 방 이름
+    console.log("Session User ID:", session_user_id);
+    console.log("Room ID:", room); // 방 이름이 올바르게 전달되는지 확인
+  </script>
+  <script src="../static/js/chatInterface.js"></script>
+</body>
+</html>
