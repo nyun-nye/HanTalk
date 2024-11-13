@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, send, leave_room, emit
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 from flask_jwt_extended import JWTManager
+from prometheus_client import Gauge, start_http_server
+import threading
+import time
 
 # 환경 변수 로드
 load_dotenv()
@@ -30,7 +33,25 @@ jwt = JWTManager(app)  # 여기서 JWTManager 초기화
 # Blueprint 라우트 등록
 init_routes(app, mysql)
 
-CHAT_ROOMS = ["데이터통신", "알고리즘", "객체지향언어", "자료구조", "프로그래밍언어", "오픈소스"]
+# 실시간 접속자 수 추적
+connected_users = set()  # 접속 중인 사용자 리스트
+
+# Prometheus 메트릭 정의
+active_users = Gauge('active_users', 'Number of active users')
+
+# Prometheus 메트릭 서버 시작 (별도의 스레드에서 실행)
+def update_metrics():
+    while True:
+        active_users.set(len(connected_users))  # 접속 중인 사용자 수 갱신
+        time.sleep(5)  # 5초마다 업데이트
+
+# Prometheus 메트릭 서버를 별도의 스레드에서 실행
+def start_prometheus():
+    start_http_server(8080)  # Prometheus가 데이터를 가져갈 엔드포인트 (8080 포트)
+    update_metrics()
+
+# Prometheus 서버를 별도의 스레드에서 실행
+threading.Thread(target=start_prometheus, daemon=True).start()
 
 @app.route('/')
 def home():
@@ -43,8 +64,18 @@ def login():
         user_id = request.form['user_id']
         password = request.form['password']
         # 로그인 로직 (DB 확인, 세션 설정 등)
+        session['user_id'] = user_id
+        connected_users.add(user_id)  # 접속자 리스트에 추가
         return redirect(url_for('home'))  # 로그인 후 홈페이지로 리디렉션
     return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    user_id = session.get('user_id')
+    if user_id in connected_users:
+        connected_users.remove(user_id)  # 접속자 리스트에서 제거
+    session.pop('user_id', None)  # 세션에서 사용자 정보 제거
+    return redirect(url_for('home'))
 
 @app.route('/signUp', methods=['GET', 'POST'])
 def signUp():
@@ -101,8 +132,7 @@ def handle_join(data):  # 이벤트 처리 함수
 # 방에 있는 모든 사용자에게 입장 메시지 브로드캐스트
     emit('receive_message', {
         'sender': '안내',
-        'message': f'{user_id}님이 {room} 방에 입장하셨습니다.'
-    }, to=room)
+        'message': f'{user_id}님이 {room} 방에 입장하셨습니다.'}, to=room)
 
 # WebSocket : 메세지 전송
 @socketio.on('send_message')
