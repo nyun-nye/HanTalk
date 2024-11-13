@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, send, leave_room, emit
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 from flask_jwt_extended import JWTManager
+from prometheus_client import Gauge, start_http_server
+import threading
+import time
 
 # 환경 변수 로드
 load_dotenv()
@@ -31,6 +34,26 @@ jwt = JWTManager(app)  # 여기서 JWTManager 초기화
 init_routes(app, mysql)
 
 CHAT_ROOMS = ["데이터통신", "알고리즘", "객체지향언어", "자료구조", "프로그래밍언어", "오픈소스"]
+
+# Prometheus 메트릭 정의
+active_users = Gauge('active_users', 'Number of active users')
+active_chat_rooms = Gauge('active_chat_rooms', 'Number of active chat rooms')
+
+# 사용자와 채팅방 정보를 업데이트하는 함수
+def update_metrics():
+    while True:
+        active_users.set(len(session.keys()))  # 현재 접속 중인 사용자 수
+        active_chat_rooms.set(len(CHAT_ROOMS))  # 활성 채팅방 수
+        time.sleep(5)  # 5초마다 업데이트
+
+# Prometheus 메트릭 서버 시작 (별도의 스레드에서 실행)
+def start_prometheus():
+    start_http_server(8080)  # Prometheus가 데이터를 가져갈 엔드포인트 (8080 포트)
+    while True:
+        update_metrics()
+
+# Prometheus 서버를 별도의 스레드에서 실행
+threading.Thread(target=start_prometheus, daemon=True).start()
 
 @app.route('/')
 def home():
@@ -111,7 +134,7 @@ def handle_join(data):  # 이벤트 처리 함수
     room = data.get('room') # 채팅방 이름 불러오기
     join_room(room) # 사용자가 채팅방 참가
     
-# 방에 있는 모든 사용자에게 입장 메시지 브로드캐스트
+    # 방에 있는 모든 사용자에게 입장 메시지 브로드캐스트
     emit('receive_message', {
         'sender': '안내',
         'message': f'{user_id}님이 {room} 방에 입장하셨습니다.'
