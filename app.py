@@ -5,12 +5,9 @@ from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, send, leave_room, emit
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 from flask_jwt_extended import JWTManager
-<<<<<<< HEAD
 from prometheus_client import Gauge, start_http_server
 import threading
 import time
-=======
->>>>>>> origin/yejin
 
 # 환경 변수 로드
 load_dotenv()
@@ -135,12 +132,7 @@ def handle_join(data):  # 이벤트 처리 함수
 # 방에 있는 모든 사용자에게 입장 메시지 브로드캐스트
     emit('receive_message', {
         'sender': '안내',
-<<<<<<< HEAD
         'message': f'{user_id}님이 {room} 방에 입장하셨습니다.'}, to=room)
-=======
-        'message': f'{user_id}님이 {room} 방에 입장하셨습니다.'
-    }, to=room)
->>>>>>> origin/yejin
 
 # WebSocket : 메세지 전송
 @socketio.on('send_message')
