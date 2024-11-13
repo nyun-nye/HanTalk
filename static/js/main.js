@@ -20,7 +20,7 @@ document.querySelectorAll('.main-button').forEach(button => {
 
 document.addEventListener("DOMContentLoaded", async function () {
   try {
-      const response = await fetch('/auth/check');
+      const response = await fetch('/auth/check', {credentials: 'include'});
       if (!response.ok) {
           throw new Error('로그인이 필요합니다.');
       }

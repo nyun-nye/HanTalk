@@ -94,14 +94,14 @@ def chat_room(room):
 # WebSocket : 클라이언트 연결
 @socketio.on('join')    
 def handle_join(data):  # 이벤트 처리 함수
-    username = session.get('username') # 사용자 이름 불러오기
+    user_id = session.get('user_id') # 사용자 이름 불러오기
     room = data.get('room') # 채팅방 이름 불러오기
     join_room(room) # 사용자가 채팅방 참가
     
 # 방에 있는 모든 사용자에게 입장 메시지 브로드캐스트
     emit('receive_message', {
         'sender': '안내',
-        'message': f'{username}님이 {room} 방에 입장하셨습니다.'
+        'message': f'{user_id}님이 {room} 방에 입장하셨습니다.'
     }, to=room)
 
 # WebSocket : 메세지 전송
