@@ -128,7 +128,14 @@ def handle_send_message(data):
 def personalChat():
     if 'user_id' not in session or 'username' not in session:
         return redirect(url_for('login'))  # 로그인 안 된 사용자는 로그인 페이지로 리디렉션
-    return render_template('personalChat.html')
+# MySQL에서 사용자 ID 가져오기
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT user_id FROM users")
+    users = cur.fetchall()  # [(user_id1,), (user_id2,), ...] 형태로 반환
+    cur.close()
+
+    # users 리스트를 personalChat.html에 전달
+    return render_template('personalChat.html', users=users)
 
 # 채팅방 페이지
 @app.route('/chatInterface/<room>')
