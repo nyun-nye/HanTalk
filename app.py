@@ -134,8 +134,10 @@ def personalChat():
     users = cur.fetchall()  # [(user_id1,), (user_id2,), ...] 형태로 반환
     cur.close()
 
+    current_user_id = session['user_id']
+
     # users 리스트를 personalChat.html에 전달
-    return render_template('personalChat.html', users=users)
+    return render_template('personalChat.html', users=users, current_user_id=current_user_id)
 
 # 채팅방 페이지
 @app.route('/chatInterface/<room>')

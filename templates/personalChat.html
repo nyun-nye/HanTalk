@@ -13,7 +13,13 @@
     <input type="text" placeholder="사용자 아이디를 검색하세요." class="search-input">
     <div class="chat-list">
       {% for user in users %}
-      <div class="chat-item">{{ user[0] }}</div>
+        <div class="chat-item">
+          {% if user[0] == current_user_id %}
+            내 채팅
+          {% else %}
+            {{ user[0] }}
+          {% endif %}
+        </div>
       {% endfor %}
     </div>
   </div>
