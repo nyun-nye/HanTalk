@@ -28,7 +28,7 @@ def signUp():
             (name, student_id, user_id, password)
         )
         mysql.connection.commit()
-        return jsonify({"message": "User signed up successfully"}), 201
+        return jsonify({"message": "회원가입에 성공하였습니다."}), 201
     except Exception as e:
         mysql.connection.rollback()
         current_app.logger.error(f"Error during signUp: {e}")
@@ -51,17 +51,31 @@ def login():
     cur.close()
     
     if user and bcrypt.check_password_hash(user[4], password):  # user[4]는 password 필드
-        session['user_id'] = user[2]  # 세션에 user_id 저장
+        session['user_id'] = user[3]  # 세션에 user_id 저장
         session['username'] = user[1]  # username 저장
         access_token = create_access_token(identity=user_id)
         return jsonify({"message": "로그인 성공", "access_token": access_token}), 200
     else:
         return jsonify({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}), 401
+
 @auth_bp.route('/check', methods=['GET'])
 def check_login_status():
     if 'user_id' in session:
         return jsonify({'status': 'logged_in'}), 200
     return jsonify({'status': 'not_logged_in'}), 401
+
+@auth_bp.route('/check_user/<user_id>', methods=['GET'])
+def check_user(user_id):
+    mysql = current_app.config['MYSQL_INSTANCE']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT user_id FROM users WHERE user_id = %s", (user_id,))
+    user = cur.fetchone()
+    cur.close()
+
+    if user:
+        return jsonify({"exists": True}), 200
+    return jsonify({"exists": False}), 404
+
 # 라우트 초기화 함수
 def init_routes(app, mysql):
     app.config['MYSQL_INSTANCE'] = mysql  # MySQL 객체를 Flask 설정에 저장
