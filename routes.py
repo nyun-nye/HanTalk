@@ -28,7 +28,7 @@ def signUp():
             (name, student_id, user_id, password)
         )
         mysql.connection.commit()
-        return jsonify({"message": "User signed up successfully"}), 201
+        return jsonify({"message": "회원가입에 성공하였습니다."}), 201
     except Exception as e:
         mysql.connection.rollback()
         current_app.logger.error(f"Error during signUp: {e}")
@@ -51,7 +51,7 @@ def login():
     cur.close()
     
     if user and bcrypt.check_password_hash(user[4], password):  # user[4]는 password 필드
-        session['user_id'] = user[2]  # 세션에 user_id 저장
+        session['user_id'] = user[3]  # 세션에 user_id 저장
         session['username'] = user[1]  # username 저장
         access_token = create_access_token(identity=user_id)
         return jsonify({"message": "로그인 성공", "access_token": access_token}), 200
