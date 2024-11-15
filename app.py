@@ -215,6 +215,10 @@ def metrics():
     # Prometheus 메트릭을 출력하는 라우트
     return generate_latest(registry)
 
+@app.route('/view_dashboard')
+def view_dashboard():
+    return redirect("http://localhost:3000/d/fe3ts8ilf2vpcc/chat-service?from=now-1h&to=now&timezone=browser&showCategory=Legend")
+
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
     
