@@ -5,11 +5,17 @@ from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, send, leave_room, emit
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 from flask_jwt_extended import JWTManager
+from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, REGISTRY
 
 # 환경 변수 로드
 load_dotenv()
 
 app = Flask(__name__)
+
+# Prometheus 메트릭 설정
+metrics = PrometheusMetrics(app)
+
 socketio = SocketIO(app)
 
 # MySQL 설정
@@ -28,6 +34,13 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 mysql = MySQL(app)
 jwt = JWTManager(app)  # 여기서 JWTManager 초기화
 
+
+# 메시지 크기 카운터 정의
+message_size_counter = Counter('message_size_bytes', 'Total message size in bytes')
+
+# 메시지 처리 시간 히스토그램
+message_processing_time = Histogram('message_processing_time_seconds', 'Time spent processing a message')
+
 # Blueprint 라우트 등록
 init_routes(app, mysql)
 
@@ -36,6 +49,10 @@ CHAT_ROOMS = ["데이터통신", "알고리즘", "객체지향언어", "자료�
 @app.route('/')
 def home():
     return render_template('main.html')
+
+@app.route('/view_dashboard')
+def view_dashboard():
+    return redirect("http://localhost:3000/d/fe3ts8ilf2vpcc/chat-service?from=now-1h&to=now&timezone=browser&showCategory=Legend")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -116,13 +133,21 @@ def handle_send_message(data):
         print("[Server Log] Invalid room or message.")
         return
 
+     # 메시지 크기 측정 (바이트 단위)
+    message_size = len(message.encode('utf-8'))  # UTF-8로 인코딩된 메시지 크기(바이트)
+    
+    # Prometheus 메트릭에 메시지 크기 추가
+    message_size_counter.inc(message_size)
+    
     print(f"[Server Log] Received message to room {room}: {message} by {sender}")
 
-    # Broadcast the message
-    socketio.emit('receive_message', {
-        'sender': sender,
-        'message': message
-    }, to=room)
+     # 메시지 처리 시간 기록 (시간 측정)
+    with message_processing_time.time():  # 메시지 처리 시간 기록
+        # Broadcast the message
+        socketio.emit('receive_message', {
+            'sender': sender,
+            'message': message
+        }, to=room)
 
 # 1:1 채팅방 선택 페이지
 @app.route('/personalChat')
@@ -188,5 +213,16 @@ def handle_group_message(data):
         print(f"Error sending group message: {str(e)}")
         socketio.emit('error', {'error': str(e)}, to=room)
 
+# Prometheus 메트릭을 노출하는 라우트
+@app.route('/metrics')
+def metrics():
+    # Prometheus 메트릭을 출력하는 라우트
+    return generate_latest(REGISTRY)
+
+@app.route('/view_dashboard')
+def view_dashboard():
+    return redirect("http://localhost:3000/d/fe3ts8ilf2vpcc/chat-service?from=now-1h&to=now&timezone=browser&showCategory=Legend")
+
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+    

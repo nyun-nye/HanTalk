@@ -1,13 +1,17 @@
-# config.py 파일
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
-load_dotenv()  # .env 파일 로드
+# 환경 변수 로드
+load_dotenv()
 
+# Flask 앱 구성
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "default_secret")
-    MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
-    MYSQL_USER = os.getenv("MYSQL_USER", "root")
-    MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
-    MYSQL_DB = os.getenv("MYSQL_DB", "chat_service")
-    MYSQL_UNIX_SOCKET = os.getenv("MYSQL_SOCKET", "/opt/homebrew/var/mysql/mysql.sock")    
+    MYSQL_HOST = os.getenv('MYSQL_HOST')
+    MYSQL_USER = os.getenv('MYSQL_USER')
+    MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
+    MYSQL_DB = os.getenv('MYSQL_DB')
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    SESSION_COOKIE_SECURE = False  # HTTP에서도 세션 허용
+    SESSION_COOKIE_HTTPONLY = True  # 자바스크립트에서 세션 쿠키 접근 차단
+    MYSQL_UNIX_SOCKET = '/opt/homebrew/var/mysql/mysql.sock'
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
