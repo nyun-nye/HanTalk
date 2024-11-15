@@ -6,7 +6,7 @@ from flask_socketio import SocketIO, join_room, send, leave_room, emit
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 from flask_jwt_extended import JWTManager
 from prometheus_flask_exporter import PrometheusMetrics
-from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry
+from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, REGISTRY
 
 # 환경 변수 로드
 load_dotenv()
@@ -48,6 +48,10 @@ CHAT_ROOMS = ["데이터통신", "알고리즘", "객체지향언어", "자료�
 @app.route('/')
 def home():
     return render_template('main.html')
+
+@app.route('/view_dashboard')
+def view_dashboard():
+    return redirect("http://localhost:3000/d/fe3ts8ilf2vpcc/chat-service?from=now-1h&to=now&timezone=browser&showCategory=Legend")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -211,9 +215,8 @@ def handle_group_message(data):
 # Prometheus 메트릭을 노출하는 라우트
 @app.route('/metrics')
 def metrics():
-    registry = CollectorRegistry()
     # Prometheus 메트릭을 출력하는 라우트
-    return generate_latest(registry)
+    return generate_latest(REGISTRY)
 
 @app.route('/view_dashboard')
 def view_dashboard():
