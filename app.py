@@ -20,6 +20,7 @@ app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SESSION_COOKIE_SECURE'] = False  # HTTP에서도 세션 허용
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # 자바스크립트에서 세션 쿠키 접근 차단
+app.config['MYSQL_UNIX_SOCKET'] = '/opt/homebrew/var/mysql/mysql.sock'
 
 # JWT 설정 추가
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')

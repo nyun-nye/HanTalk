@@ -10,3 +10,4 @@ class Config:
     MYSQL_USER = os.getenv("MYSQL_USER", "root")
     MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
     MYSQL_DB = os.getenv("MYSQL_DB", "chat_service")
+    MYSQL_UNIX_SOCKET = os.getenv("MYSQL_SOCKET", "/opt/homebrew/var/mysql/mysql.sock")    
