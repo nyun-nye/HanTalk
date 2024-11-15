@@ -50,8 +50,8 @@ CHAT_ROOMS = ["데이터통신", "알고리즘", "객체지향언어", "자료�
 def home():
     return render_template('main.html')
 
-@app.route('/view_dashboard')
-def view_dashboard():
+@app.route('/view_dashboard1')
+def view_dashboard1():
     return redirect("http://localhost:3000/d/fe3ts8ilf2vpcc/chat-service?from=now-1h&to=now&timezone=browser&showCategory=Legend")
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -219,8 +219,8 @@ def metrics():
     # Prometheus 메트릭을 출력하는 라우트
     return generate_latest(REGISTRY)
 
-@app.route('/view_dashboard')
-def view_dashboard():
+@app.route('/view_dashboard2')
+def view_dashboard2():
     return redirect("http://localhost:3000/d/fe3ts8ilf2vpcc/chat-service?from=now-1h&to=now&timezone=browser&showCategory=Legend")
 
 if __name__ == "__main__":
