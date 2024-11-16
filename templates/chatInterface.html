@@ -10,7 +10,7 @@
 <body>
   <div class="chat-interface">
     <h1 class="logo">한톡</h1>
-    <h2>{{ room }}</h2>
+    <h2>{{ '내 채팅' if room == session['user_id'] else room }}</h2>
     <div class="chat-window"></div>
     <div class="chat-input-area">
       <input type="text" placeholder="메시지를 입력하세요." class="chat-input">
