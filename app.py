@@ -6,7 +6,9 @@ from flask_socketio import SocketIO, join_room, send, leave_room, emit
 from routes import init_routes  # routes.py의 init_routes 함수 가져오기
 from flask_jwt_extended import JWTManager
 from prometheus_flask_exporter import PrometheusMetrics
-from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, REGISTRY
+from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, Gauge, REGISTRY
+import threading
+import time
 
 # 환경 변수 로드
 load_dotenv()
@@ -34,11 +36,20 @@ mysql = MySQL(app)
 jwt = JWTManager(app)  # 여기서 JWTManager 초기화
 
 
-# 메시지 크기 카운터 정의
-message_size_counter = Counter('message_size_bytes', 'Total message size in bytes')
+# Prometheus 메트릭 정의
+message_size_counter = Counter('message_size_bytes', 'Total message size in bytes') # 메시지 크기 카운터
 
-# 메시지 처리 시간 히스토그램
-message_processing_time = Histogram('message_processing_time_seconds', 'Time spent processing a message')
+message_processing_time = Histogram('message_processing_time_seconds', 'Time spent processing a message') # 메시지 처리 시간
+
+request_count = Counter('request_count', 'Number of HTTP requests processed', ['method', 'endpoint']) # 초당 요청 처리수
+
+data_transferred = Counter('data_transferred', 'Amount of data transferred in bytes', ['method', 'endpoint']) # 데이터 전송량
+
+active_users = Gauge('active_users', 'Number of active users')  # 실시간 접속자 수
+
+active_chat_rooms = Gauge('active_chat_rooms', 'Number of active chat rooms')  # 그룹 채팅방 수
+
+connected_users = set()  # 현재 연결된 사용자 목록
 
 # Blueprint 라우트 등록
 init_routes(app, mysql)
@@ -80,6 +91,21 @@ def signUp():
         # 회원가입 로직 (DB에 저장)
         return redirect(url_for('login'))  # 가입 후 로그인 페이지로 리디렉션
     return render_template('signUp.html')
+
+@app.route('/process', methods=['POST'])
+def process_data():
+    # 요청 메트릭 증가
+    request_count.labels(method=request.method, endpoint=request.path).inc()
+
+    # 데이터 전송량 계산 (요청 본문 데이터 크기)
+    data_length = len(request.data)
+    data_transferred.labels(method=request.method, endpoint=request.path).inc(data_length)
+
+    # 응답
+    return jsonify({
+        'message': 'Data processed successfully',
+        'bytes_received': data_length
+    }), 200
 
 # 채팅방 목록 페이지
 @app.route('/group_chat')
@@ -217,10 +243,6 @@ def handle_group_message(data):
 def metrics():
     # Prometheus 메트릭을 출력하는 라우트
     return generate_latest(REGISTRY)
-
-@app.route('/view_dashboard')
-def view_dashboard():
-    return redirect("http://localhost:3000/d/fe3ts8ilf2vpcc/chat-service?from=now-1h&to=now&timezone=browser&showCategory=Legend")
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)
