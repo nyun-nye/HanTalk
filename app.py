@@ -114,11 +114,14 @@ def handle_join(data):  # 이벤트 처리 함수
     user_id = session.get('user_id') # 사용자 이름 불러오기
     room = data.get('room') # 채팅방 이름 불러오기
     join_room(room) # 사용자가 채팅방 참가
+
+    # 사용자 ID가 방 이름과 동일하면 '내 채팅'으로 표시
+    display_room_name = '내 채팅' if user_id == room else room
     
 # 방에 있는 모든 사용자에게 입장 메시지 브로드캐스트
     emit('receive_message', {
         'sender': '안내',
-        'message': f'{user_id}님이 {room} 방에 입장하셨습니다.'
+        'message': f'{user_id}님이 {display_room_name} 방에 입장하셨습니다.'
     }, to=room)
 
 # WebSocket : 메세지 전송
